@@ -1,0 +1,57 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+## Do not be tricked: GDP and \^STI
+
+In this business times [article](http://www.businesstimes.com.sg/companies-markets/stock-market-a-poor-predictor-of-gdp-analysts) -- __Stock market a poor predictor of GDP: analysts__ --
+the author quotes the [motley fool](https://www.fool.sg/2015/06/18/singapores-economic-growth-is-slowing-heres-why-stock-market-investors-should-not-worry/), 
+and mentions how GDP is not affected by the the stock market. 
+
+<i class="fa fa-quote-left" style="font-size: 12em"></i>
+<br>
+<i>Now, the good news. The impact of the limping stock market on the real economy is nada, according to market watchers.
+Analysts who have plotted Singapore's GDP growth rates over the years against the STI or the index's total returns have discovered that there is no discernible link between them.
+</i>
+
+
+![bt_image](bt_image.jpg)
+
+
+Is this complete BS?
+
+
+
+### Singapore's GDP
+
+We extract Singapore's GDP values from the world bank using the `WDI` package.
+
+
+```r
+gdp = WDI("SG", "NY.GDP.MKTP.KD.ZG", start=1993, end=2014)
+gdp = setNames(gdp[,3:4], c("gdp", "year"))
+gdp %<>% arrange(year)
+```
+
+### Annual Returns for \^STI
+
+And calculate the annual returns for the the Straits Times Index (\^STI), from 1993 to 2015, using the `quantmod` package
+
+
+```r
+stiDF = getSymbols("^STI", from = "1993-01-01", to = "2014-12-31", auto.assign = FALSE)
+rSTI = annualReturn(stiDF)
+rSTI %<>% as.data.frame
+```
+
+First we plot the GDP growth rate against STI annual return rates, year by year, in the same year.
+Correlation between the two seems to be all over the place. 
+
+![plot of chunk plot](figure/plot-1.png) 
+
+Next, we introduce some lag -- to be precise, 1 year; where the GDP is lagging --  and we see how well the correlation is (R value: 0.7862812)
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+## Conclusion
+
+Watch out folks dont believe any techie who is able to write a blog, and be frugal with your trust!
+Not even businesstimes!
