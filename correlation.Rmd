@@ -92,7 +92,7 @@ Not even businesstimes!
 ```{r echo=FALSE}
 corrCountries = function(country, index){
     stiDF = getSymbols(index, from = "1993-01-01", to = "2014-12-31", auto.assign = FALSE)
-    earliestYear = as.integer(substring(head(rownames(as.data.frame(stiDF)), n=1), 1, 4))
+    earliestYear = stiDF %>% as.data.frame %>% rownames %>% head(n=1) %>% substring(1,4) %>% as.integer
     rSTI = annualReturn(stiDF)
     rSTI %<>% as.data.frame
 
