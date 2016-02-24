@@ -67,6 +67,9 @@ ownPeriodReturn = function (x, period = "yearly", subset = NULL, type = "arithme
     #finds the row number for the end of year 31st Dec
     ep <- endpoints(xx, on = on.opts[[period]]) #index of the last day
     #calculate the percent change from one year to the next
+    #Step1: to_period gets the 31st Dec rows
+    #Step2: get the closing values
+    #Step3: get the percentage change,
     ret <- Delt(Cl(to_period(xx, period = on.opts[[period]])), type = type)
     #the first value of ret is NA, if leading, 
     #we find the percentage change from the the first year's opening price and the same year's 31st Dec closing price
