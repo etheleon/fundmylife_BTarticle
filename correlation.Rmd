@@ -40,6 +40,52 @@ And calculate the annual returns for the the Straits Times Index (\^STI), from 1
 ```{r STI}
 stiDF = getSymbols("^STI", from = "1993-01-01", to = "2014-12-31", auto.assign = FALSE)
 rSTI = annualReturn(stiDF)
+
+ownPeriodReturn = function (x, period = "yearly", subset = NULL, type = "arithmetic", leading = TRUE, ...)
+{
+    #Checks if its a xts (eXtensible time-series object)
+    xx <- try.xts(x)
+    #Checks if its a normal time series object; getSymbols returns a xts not ts
+    if (inherits(x, "ts")) {
+        #does some manipulation
+        x <- na.omit(try.xts(x))
+        xtsAttributes(x) <- CLASS(x) <- NULL
+        xx <- x
+        TS <- TRUE
+    }
+    else TS <- FALSE
+    #defines function getFirst which is getting the opening and getLast which is getting the closing
+    if (has.Op(xx) & has.Cl(xx)) {
+        getFirst <- function(X) Op(X) #STI.Open
+        getLast <- function(X) Cl(X)  #STI.close
+    }
+    #if it doesnt then this (probably meant for normal time series object)
+    else getFirst <- getLast <- function(X) X[, 1]
+    #parses the period 
+    on.opts <- list(daily = "days", weekly = "weeks", monthly = "months",
+        quarterly = "quarters", yearly = "years", annually = "years")
+    #finds the row number for the end of year 31st Dec
+    ep <- endpoints(xx, on = on.opts[[period]]) #index of the last day
+    #calculate the percent change from one year to the next
+    ret <- Delt(Cl(to_period(xx, period = on.opts[[period]])), type = type)
+    #the first value of ret is NA, if leading, 
+    #we find the percentage change from the the first year's opening price and the same year's 31st Dec closing price
+    #and add it to ret
+    if (leading) {
+        firstval <- as.numeric(Delt_(getFirst(xx[2]), getLast(xx[ep[2]]),
+            type = type))
+        ret[1, ] <- firstval
+    }
+    colnames(ret) <- paste(period, "returns", sep = ".")
+    if (TS)
+        xx <- 1
+    tmp.ret <- reclass(ret, xx[ep[-1]])
+    if (is.null(subset))
+        subset <- "/"
+    reclass(as.xts(tmp.ret)[subset])
+
+}
+#ownPeriodReturn(stiDF, "yearly")
 rSTI %<>% as.data.frame
 ```
 
